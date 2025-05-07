@@ -1,12 +1,15 @@
+import os
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import openai
+from dotenv import load_dotenv
+
+load_dotenv()  # Load variables from .env (optional for local dev)
 
 app = Flask(__name__)
-CORS(app)  # Enable CORS for frontend requests
+CORS(app)
 
-# ✅ Set API key BEFORE running anything
-openai.api_key = "YOUR_OPENAI_API_KEY"  # Replace with your actual key
+openai.api_key = os.environ.get("OPENAI_API_KEY")
 
 @app.route('/')
 def home():
@@ -20,7 +23,6 @@ def ask():
     if not question:
         return jsonify({"error": "No question provided"}), 400
 
-    # Call GPT model
     response = openai.ChatCompletion.create(
         model="gpt-3.5-turbo",
         messages=[
@@ -32,6 +34,6 @@ def ask():
     answer = response['choices'][0]['message']['content']
     return jsonify({"answer": answer})
 
-# ✅ Start server last
 if __name__ == '__main__':
     app.run(debug=True)
+
